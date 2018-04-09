@@ -4,7 +4,7 @@
   Released into the wild.
 */
 
-#include "WProgram.h"
+// #include "WProgram.h"
 #include "MouseEye.h"
 
 //////////////////////////////////////////
@@ -13,71 +13,69 @@
 
 
 ///////////////////////////////////////////
-//	CONSTRUCTOR			
-///////////////////////////////////////////	
+//	CONSTRUCTOR
+///////////////////////////////////////////
 MouseEye::MouseEye(int sck, int sdio)
 {
-	//	SET PIN DIRECTION
-  pinMode(sck, OUTPUT);
-  pinMode(sdio, INPUT);
-  digitalWrite(sck,HIGH);	//clock idles high
-  // initialize pin states and prepare default config settings
   _SCK = sck;	// keep track of the clock pin
   _SDIO = sdio;	// keep track of the data  pin
-
+	//	SET PIN DIRECTION
+  pinMode(_SDIO, INPUT);
+  pinMode(_SCK, OUTPUT);
+  digitalWrite(_SCK,HIGH);	//clock idles high
 }
 
 //////////////////////////////////////////
 //	PUBLIC FUNCTIONS
 //////////////////////////////////////////
 
-void MouseEye::getMouse()
+void MouseEye::getMouseDelta()
 {
-deltaY = readDNS(0x43);
 deltaX = readDNS(0x42);
+deltaY = readDNS(0x43);
 }
 
 
-byte MouseEye::Config_R()
+uint8_t MouseEye::Config_Read()
 {
 byte n = readDNS(0x40);
 return n;
 }
 
-void MouseEye::Config_W(byte cfig)
+void MouseEye::Config_Write(byte cfig)
 {
 writeDNS(0x40,cfig);
 }
 
-byte MouseEye::Status()
+uint8_t MouseEye::Status()
 {
 byte n = readDNS(0x41);
 return n;
 }
 
-byte MouseEye::Squal()
+int MouseEye::Squal()
 {
 b = readDNS(0x44);
 return b;
 }
 
-byte MouseEye::Max_P()
+uint8_t MouseEye::Max_Pixel()
 {
 b = readDNS(0x45);
-return b;
+return b*2;
 }
 
-byte MouseEye::Min_P()
+uint8_t MouseEye::Min_Pixel()
 {
 b = readDNS(0x46);
 return b;
 }
 
-byte MouseEye::Pixel_Sum()
+int MouseEye::Pixel_Sum()
 {
 b = readDNS(0x47);
-b *= 0.395;
-return b;
+int sum = b*128;
+return sum;
 }
 
 word MouseEye::Shutter()
@@ -85,20 +83,21 @@ word MouseEye::Shutter()
 word w;
 sUpper = readDNS(0x49);
 sLower = readDNS(0x4A);
-w = sUpper << 8;
-w += sLower;
+w = word(sUpper,sLower);
 return w;
 }
 
-byte MouseEye::F_Period_R()
+short MouseEye::Frame_Period_Read()
 {
 b = readDNS(0x4B);
-return b;
+short period = b << 8;
+return period;
 }
 
-void MouseEye::F_Period_W(byte F)
+void MouseEye::Frame_Period_Write(short period)
 {
-writeDNS(0x4B,F);
+b = period >> 8;
+writeDNS(0x4B,b);
 }
 
 void MouseEye::Pixel_Data()
@@ -106,7 +105,7 @@ void MouseEye::Pixel_Data()
 writeDNS(0x48,0x48);
 }
 
-byte MouseEye::Pixel_Data_R()
+byte MouseEye::Pixel_Data_Read()
 {
 b = readDNS(0x48);
 return b;
@@ -118,36 +117,35 @@ return b;
 //////////////////////////////////////////
 
 
-byte MouseEye::readDNS(byte first){
+byte MouseEye::readDNS(byte outByte){
   int i;
-  byte second;
+  byte inByte;
   for (i=7; i>=0; i--){        		//choose bit send
     digitalWrite(_SCK,LOW);     		//setup on falling edge
-    digitalWrite(_SDIO, (bitRead(first,i)));	//send bit    
+    digitalWrite(_SDIO, (bitRead(outByte,i)));	//send bit
     digitalWrite(_SCK,HIGH);    		//DNS samples on rising edge
-  }	
+  }
   delayMicroseconds(20);		// wait for ADNS to get hold of data line
   pinMode(_SDIO,INPUT);         		//get ready to read
   delayMicroseconds(80);
   for (i=7; i>=0; i--){        		//choose bit to store
-    digitalWrite(_SCK,LOW);     		//DNS sets up on falling edge  
+    digitalWrite(_SCK,LOW);     		//DNS sets up on falling edge
     digitalWrite(_SCK,HIGH);    		//sample on rising edge
-    bitWrite(second,i,(digitalRead(_SDIO)));	//get bit
+    bitWrite(inByte,i,(digitalRead(_SDIO)));	//get bit
   }
   pinMode(_SDIO,OUTPUT);		//reset SDIO for next time
-  return second;			//return byte
+  return inByte;			//return byte
 }// end readDNS
 
 
 
-void MouseEye::writeDNS(byte top, byte bottom){
+void MouseEye::writeDNS(byte high, byte low){
 
-  word out = word(top,bottom);  	//load bytes into the chute
-  bitSet(out,15);               		//we want to write data
+  word outWord = word(high,low);  	//load bytes into the chute
+  bitSet(outWord,15);               		//we want to write data
   for (int i=15; i>=0; i--){    		//choose bit MSB
     digitalWrite(_SCK,LOW);      		//setup on falling edge
-    digitalWrite(_SDIO, (bitRead(out,i)));    	//send bit 
-    digitalWrite(_SCK,HIGH);  
+    digitalWrite(_SDIO, (bitRead(outWord,i)));    	//send bit
+    digitalWrite(_SCK,HIGH);
   }
 }//  end writeDNS
-

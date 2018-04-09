@@ -1,8 +1,11 @@
 # Mouse Eye Library.
-Written by Joel Murphy, Fall 2010
+Written by Joel Murphy, Fall 2010.
+Updated by Joel Murphy, Spring 2018.
 This Library offers full access to all the functionality
 of the Avago ADNS2620 at the heart of the Mouse Eye.
 Use of the Library is discribed here.
+
+[ADNS2620 Datasheet](https://cdn.sparkfun.com/datasheets/Components/General%20IC/ADNS2620.pdf)
 
 First, connect the SDIO and SCK lines from the Mouse Eye to the Arduino.
 Any digital pins (2...13) will work for this connection.
