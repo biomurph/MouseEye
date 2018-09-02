@@ -26,7 +26,7 @@ class MouseEye
   public:
     MouseEye(int sck, int sdio);		//constructor
 
-    void getMouseDelta();
+    void getMouseEyeDelta();
     uint8_t Config_Read();
     void Config_Write(uint8_t);
     uint8_t Status();

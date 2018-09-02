@@ -29,10 +29,11 @@ MouseEye::MouseEye(int sck, int sdio)
 //	PUBLIC FUNCTIONS
 //////////////////////////////////////////
 
-void MouseEye::getMouseDelta()
+void MouseEye::getMouseEyeDelta()
 {
-deltaX = readDNS(0x42);
-deltaY = readDNS(0x43);
+deltaY = readDNS(0x42);
+deltaX = readDNS(0x43);
+deltaY = ~deltaY; deltaY++;	// invert deltaY
 }
 
 
