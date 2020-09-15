@@ -6,19 +6,12 @@
   Updated Spring 2018 to work with Arduino Leonardo as HID Mouse
   Working toward Open Source Certified USB Mouse in Summer of 2018
 
-  >>>> NEEDS
-        Right and Left Switch integration https://www.mouser.com/ProductDetail/E-Switch/LL3301DF065QJ?qs=sGAEpiMZZMvxtGF7dlGNpqqmTFthXBmf2IHkMbm6UkQ%3d
-        Mouse Wheel integration http://www.alps.com/prod/info/E/HTML/Encoder/Incremental/EC10E/EC10E1220505.html
 */
 
 #ifndef MouseEye_h
 #define MouseEye_h
 #include <Arduino.h>
-// #include "WProgram.h"
 #include <stdint.h>
-
-
-
 
 
 class MouseEye

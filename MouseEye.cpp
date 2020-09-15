@@ -20,9 +20,9 @@ MouseEye::MouseEye(int sck, int sdio)
   _SCK = sck;	// keep track of the clock pin
   _SDIO = sdio;	// keep track of the data  pin
 	//	SET PIN DIRECTION
-  pinMode(_SDIO, INPUT);
-  pinMode(_SCK, OUTPUT);
-  digitalWrite(_SCK,HIGH);	//clock idles high
+  pinMode(_SDIO, OUTPUT); digitalWrite(_SDIO,HIGH);
+  pinMode(_SCK, OUTPUT); digitalWrite(_SCK,HIGH);	//clock idles high
+
 }
 
 //////////////////////////////////////////
@@ -34,6 +34,7 @@ void MouseEye::getMouseEyeDelta()
 deltaY = readDNS(0x42);
 deltaX = readDNS(0x43);
 deltaY = ~deltaY; deltaY++;	// invert deltaY
+// deltaX = ~deltaX; deltaX++;	// invert deltaX
 }
 
 
@@ -134,7 +135,7 @@ byte MouseEye::readDNS(byte outByte){
     digitalWrite(_SCK,HIGH);    		//sample on rising edge
     bitWrite(inByte,i,(digitalRead(_SDIO)));	//get bit
   }
-  pinMode(_SDIO,OUTPUT);		//reset SDIO for next time
+  pinMode(_SDIO,OUTPUT); digitalWrite(_SCK,HIGH);		//reset SDIO for next time
   return inByte;			//return byte
 }// end readDNS
 
@@ -149,4 +150,5 @@ void MouseEye::writeDNS(byte high, byte low){
     digitalWrite(_SDIO, (bitRead(outWord,i)));    	//send bit
     digitalWrite(_SCK,HIGH);
   }
+	digitalWrite(_SDIO,HIGH);// test
 }//  end writeDNS
